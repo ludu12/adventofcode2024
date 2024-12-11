@@ -19,6 +19,7 @@ pub fn grid(input: &str) -> Vec<Vec<char>> {
     return input.lines().map(|l| l.chars().collect_vec()).collect_vec();
 }
 
+#[allow(dead_code)]
 pub fn get_neighbor(x: usize, y: usize, dx: isize, dy: isize, width: usize, height: usize) -> Option<(usize, usize)> {
     let nx = x.wrapping_add_signed(dx);
     let ny = y.wrapping_add_signed(dy);
@@ -30,6 +31,7 @@ pub fn get_neighbor(x: usize, y: usize, dx: isize, dy: isize, width: usize, heig
     }
 }
 
+#[allow(dead_code)]
 pub fn print_grid(grid: &Vec<Vec<char>>) {
     for row in grid {
         println!("{}", row.iter().collect::<String>())
@@ -62,7 +64,7 @@ pub fn gcd(first: i64, second: i64) -> i64 {
     }
 }
 
-
+#[allow(dead_code)]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy)]
 pub enum Direction {
     North,

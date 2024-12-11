@@ -1,5 +1,4 @@
-use crate::utils::{grid, print_grid};
-use itertools::Itertools;
+use crate::utils::{grid};
 
 pub fn run() {
     let input = include_str!("input.txt");
@@ -42,12 +41,6 @@ impl Direction {
         Self::South,
         Self::SouthWest,
         Self::West,
-    ];
-    const PARTTWO_VALUES: [Self; 4] = [
-        Self::NorthWest,
-        Self::NorthEast,
-        Self::SouthEast,
-        Self::SouthWest,
     ];
 }
 
@@ -109,10 +102,10 @@ fn process(input: &str, _part2: bool) -> i32 {
                 // Depth First Search
                 if char == &'X' {
                     for direction in Direction::VALUES {
-                        let (dX, dY) = direction.value();
-                        if found(&map, add(i, dX), add(j, dY), 'M')
-                            && found(&map, add(i, dX * 2), add(j, dY * 2), 'A')
-                            && found(&map, add(i, dX * 3), add(j, dY * 3), 'S')
+                        let (d_x, d_y) = direction.value();
+                        if found(&map, add(i, d_x), add(j, d_y), 'M')
+                            && found(&map, add(i, d_x * 2), add(j, d_y * 2), 'A')
+                            && found(&map, add(i, d_x * 3), add(j, d_y * 3), 'S')
                         {
                             result = result + 1;
                         }
@@ -138,7 +131,7 @@ fn process(input: &str, _part2: bool) -> i32 {
                         (Direction::NorthEast, Direction::SouthWest)
                     );
 
-                    if (nw_se && ne_sw) {
+                    if nw_se && ne_sw {
                         result = result + 1;
                     }
                 }
