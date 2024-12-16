@@ -5,6 +5,7 @@ mod two;
 mod three;
 mod four;
 mod five;
+mod six;
 mod utils;
 
 fn main() {
@@ -23,6 +24,7 @@ fn main() {
         3 => three::run(),
         4 => four::run(),
         5 => five::run(),
+        6 => six::run(),
         _ => println!("Invalid advent number! \"{}\"", num),
     }
 }

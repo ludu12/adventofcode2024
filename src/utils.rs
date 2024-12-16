@@ -16,7 +16,12 @@ pub fn transpose<T>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
 }
 
 pub fn grid(input: &str) -> Vec<Vec<char>> {
-    return input.lines().map(|l| l.chars().collect_vec()).collect_vec();
+    input.lines().map(|l| l.chars().collect_vec()).collect_vec()
+}
+
+#[allow(dead_code)]
+pub fn get_bounds(g: &Vec<Vec<char>>) -> (usize, usize) {
+    (g[0].len(), g.len())
 }
 
 #[allow(dead_code)]
@@ -65,18 +70,72 @@ pub fn gcd(first: i64, second: i64) -> i64 {
 }
 
 #[allow(dead_code)]
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Direction {
+    NorthWest,
     North,
+    NorthEast,
     East,
+    SouthEast,
     South,
+    SouthWest,
     West,
 }
+impl Direction {
+    #[allow(dead_code)]
+    const VALUES: [Self; 8] = [
+        Self::NorthWest,
+        Self::North,
+        Self::NorthEast,
+        Self::East,
+        Self::SouthEast,
+        Self::South,
+        Self::SouthWest,
+        Self::West,
+    ];
+    #[allow(dead_code)]
+    pub fn index(&self) -> usize {
+        match *self {
+            Direction::NorthWest => 0,
+            Direction::North => 1,
+            Direction::NorthEast => 2,
+            Direction::East => 3,
+            Direction::SouthEast => 4,
+            Direction::South => 5,
+            Direction::SouthWest => 6,
+            Direction::West => 7,
+        }
+    }
+    #[allow(dead_code)]
+    pub fn value(&self) -> (i8, i8) {
+        match *self {
+            Direction::NorthWest => (-1, -1),
+            Direction::North => (-1, 0),
+            Direction::NorthEast => (-1, 1),
+            Direction::East => (0, 1),
+            Direction::SouthEast => (1, 1),
+            Direction::South => (1, 0),
+            Direction::SouthWest => (1, -1),
+            Direction::West => (0, -1),
+        }
+    }
+    #[allow(dead_code)]
+    pub fn turn(&self, angle: usize) -> Direction {
+        let (quot, rem) = (angle / 45, angle % 45);
+        if rem != 0 {
+            panic!("Invalid angle: {}", angle);
+        }
+        let new_index = (self.index() + quot) % 8;
+        Direction::VALUES[new_index]
+    }
+}
+
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Position {
     pub x: i32,
     pub y: i32,
+    pub dir: Direction
 }
 
 impl Position {
@@ -87,29 +146,9 @@ impl Position {
     }
 
     #[allow(dead_code)]
-    pub fn up(&self) -> Position {
-        Position { x: self.x, y: self.y - 1 }
-    }
-    #[allow(dead_code)]
-    pub fn down(&self) -> Position {
-        Position { x: self.x, y: self.y + 1 }
-    }
-    #[allow(dead_code)]
-    pub fn left(&self) -> Position {
-        Position { x: self.x - 1, y: self.y }
-    }
-    #[allow(dead_code)]
-    pub fn right(&self) -> Position {
-        Position { x: self.x + 1, y: self.y }
-    }
-
-    #[allow(dead_code)]
     pub fn go(&self, d: Direction) -> Position {
-        match d {
-            Direction::North => self.up(),
-            Direction::East => self.right(),
-            Direction::South => self.down(),
-            Direction::West => self.left()
-        }
+        let (d_y, d_x) = d.value();
+
+        Position { x: self.x + d_x as i32, y: self.y + d_y as i32, dir: d }
     }
 }
