@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::utils::{get_bounds, grid, Direction, Position};
+use std::collections::{HashMap, HashSet};
 
 pub fn run() {
     let input = include_str!("input.txt");
@@ -27,24 +27,58 @@ fn get_start(g: &Vec<Vec<char>>) -> Position {
     panic!("Could not find starting point ^");
 }
 
-fn process(input: &str, _part2: bool) -> usize {
-    let g = grid(input);
+fn get_distinct_positions(
+    g: &Vec<Vec<char>>,
+    start: Position,
+) -> Option<HashMap<(i32, i32), HashSet<Direction>>> {
     let (x, y) = get_bounds(&g);
-    let mut position = get_start(&g);
+    let mut position = start;
 
-    let mut distinct = HashSet::new();
+    let mut distinct: HashMap<(i32, i32), HashSet<Direction>> = HashMap::new();
     while position.is_valid(x, y) {
-        distinct.insert((position.x, position.y));
-        let next = position.go(position.dir);
-        if next.is_valid(x, y) && g[next.y as usize][next.x as usize] == '#' {
-            position.dir = position.dir.turn(90);
-        }
-        else {
-            position = next;
-        }
-    }
+        let set = distinct.entry((position.x, position.y)).or_default();
 
-    distinct.len()
+        if set.contains(&position.dir) {
+            // we are in a loop
+            return None;
+        }
+        set.insert(position.dir);
+
+        let mut dir = position.dir;
+        let mut next = position.go(position.dir);
+        while next.is_valid(x, y) && g[next.y as usize][next.x as usize] == '#' {
+            dir = dir.turn(90);
+            next = position.go(dir);
+        }
+        position = next;
+    }
+    Some(distinct)
+}
+
+fn process(input: &str, part2: bool) -> usize {
+    let mut g = grid(input);
+    let start = get_start(&g);
+
+    let map = get_distinct_positions(&g, start).unwrap();
+
+    if part2 {
+        let mut obstruction = 0;
+        for (key, _value) in map.into_iter() {
+            let x = key.0 as usize;
+            let y = key.1 as usize;
+            let temp = g[y][x];
+            g[y][x] = '#';
+            let check = get_distinct_positions(&g, start);
+            match check {
+                None => obstruction += 1,
+                Some(_) => {}
+            }
+            g[y][x] = temp;
+        }
+        obstruction
+    } else {
+        map.len()
+    }
 }
 
 #[cfg(test)]
@@ -78,6 +112,6 @@ mod test {
 ........#.
 #.........
 ......#...";
-        assert_eq!(0, process(input, true));
+        assert_eq!(6, process(input, true));
     }
 }
